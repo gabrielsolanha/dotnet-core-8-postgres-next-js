@@ -1,10 +1,8 @@
-﻿// Data/AppDbContext.cs
-
-using AplicacaoWeb.Models;
+﻿using AplicacaoWeb.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
-namespace AplicacaoWeb.Data
+namespace AplicacaoWeb.Data.Context
 {
     public class AppDbContext : DbContext
     {

@@ -1,98 +1,107 @@
-﻿// Controllers/FilmesController.cs
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AplicacaoWeb.Data;
 using AplicacaoWeb.Models;
-
+using AplicacaoWeb.Responses;
+using AplicacaoWeb.Services;
+using AplicacaoWeb.Data.Context;
 
 [Route("API/[controller]")]
 [ApiController]
 public class FilmesController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IService<Filme> filmesService;
 
-    public FilmesController(AppDbContext context)
+    public FilmesController(AppDbContext context, IService<Filme> _filmesService)
     {
         _context = context;
+        filmesService = _filmesService ?? throw new ArgumentNullException(nameof(_filmesService));
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Filme>>> GetArticles()
+    public async Task<ActionResult<IEnumerable<Filme>>> GetFilmes()
     {
-        return await _context.Filmes.ToListAsync();
+        try
+        {
+            return Ok(await filmesService.List());
+        }
+        catch (Exception ex)
+        {
+            return new CustomErrorResult(
+                500,
+                new ErrorMessages("Ocorreu um erro ao obter a lista: " + ex.Message)
+            );
+        }
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Filme>> GetArticle(int id)
+    public async Task<ActionResult<Filme>> GetFilme(int id)
     {
-        var article = await _context.Filmes.Where(x => x.Id == id).FirstOrDefaultAsync();
-
-        if (article == null)
+        try
         {
-            return NotFound();
+            return Ok(await filmesService.Get(id));
         }
-
-        return article;
+        catch (Exception ex)
+        {
+            return new CustomErrorResult(
+                500,
+                new ErrorMessages("Ocorreu um erro ao obter o filme: " + ex.Message)
+            );
+        }
     }
 
     [HttpPost]
-    public async Task<ActionResult<Filme>> PostArticle(Filme article)
+    public async Task<ActionResult<Filme>> PostFilme(Filme filme)
     {
-        article.CreatedAt = DateTime.UtcNow; // Converter para UTC
-        _context.Filmes.Add(article);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetArticle", new { id = article.Id }, article);
+        try
+        {
+            return Ok(await filmesService.Add(filme));
+        }
+        catch (Exception ex)
+        {
+            return new CustomErrorResult(
+                500,
+                new ErrorMessages("Ocorreu um erro ao adicionar novo filme: " + ex.Message)
+            );
+        }
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutArticle(int id, Filme article)
+    public async Task<IActionResult> PutFilme(int id, Filme filme)
     {
-        if (id != article.Id)
-        {
-            return BadRequest();
-        }
-
-        _context.Entry(article).State = EntityState.Modified;
-
         try
         {
-            await _context.SaveChangesAsync();
+            if (id != filme.Id)
+            {
+                return BadRequest();
+            }
+            await filmesService.Update(id, filme);
+            return Ok();
         }
-        catch (DbUpdateConcurrencyException)
+        catch (Exception ex)
         {
-            if (!ArticleExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            return new CustomErrorResult(
+                500,
+                new ErrorMessages("Ocorreu um erro ao alterar o filme: " + ex.Message)
+            );
         }
-
-        return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteArticle(int id)
+    public async Task<IActionResult> DeleteFilme(int id)
     {
-        Filme article = await _context.Filmes.Where(x => x.Id == id).FirstOrDefaultAsync();
-
-        if (article == null)
+        try
         {
-            return NotFound();
+            await filmesService.Delete(id);
+            return Ok();
         }
-
-        _context.Filmes.Remove(article);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        catch (Exception ex)
+        {
+            return new CustomErrorResult(
+                500,
+                new ErrorMessages("Ocorreu um erro ao deletar o filme: " + ex.Message)
+            );
+        }
     }
 
-    private bool ArticleExists(int id)
-    {
-        return _context.Filmes.Any(e => e.Id == id);
-    }
 }
