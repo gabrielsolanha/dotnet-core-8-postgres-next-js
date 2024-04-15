@@ -9,12 +9,10 @@ using AplicacaoWeb.Data.Context;
 [ApiController]
 public class FilmesController : ControllerBase
 {
-    private readonly AppDbContext _context;
     private readonly IService<Filme> filmesService;
 
-    public FilmesController(AppDbContext context, IService<Filme> _filmesService)
+    public FilmesController(IService<Filme> _filmesService)
     {
-        _context = context;
         filmesService = _filmesService ?? throw new ArgumentNullException(nameof(_filmesService));
     }
 
