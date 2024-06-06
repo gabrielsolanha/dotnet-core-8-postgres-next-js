@@ -1,27 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using AplicacaoWeb.Models;
 using AplicacaoWeb.Responses;
-using AplicacaoWeb.Services;
-using AplicacaoWeb.Data.Context;
+using AplicacaoWeb.Aplication;
+using AplicacaoWeb.Models.Entities;
+using AplicacaoWeb.Models.Dtos.Filme;
+using AplicacaoWeb.Models.Dtos;
 
 [Route("API/[controller]")]
 [ApiController]
-public class FilmesController : ControllerBase
+public class FilmeController : ControllerBase
 {
-    private readonly IService<Filme> filmesService;
+    private readonly IFilmesApp filmesService;
 
-    public FilmesController(IService<Filme> _filmesService)
+    public FilmeController(IFilmesApp _filmesService)
     {
         filmesService = _filmesService ?? throw new ArgumentNullException(nameof(_filmesService));
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Filme>>> GetFilmes()
+    [HttpPost("list")]
+    public async Task<ActionResult<IEnumerable<FilmeDto>>> ListFilmes(PaginationDto<FilmeDto> filme)
     {
         try
         {
-            return Ok(await filmesService.List());
+            return Ok(filmesService.List(filme));
         }
         catch (Exception ex)
         {
@@ -49,7 +49,7 @@ public class FilmesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Filme>> PostFilme(Filme filme)
+    public async Task<ActionResult<FilmeDto>> PostFilme(FilmeWithArquiveDto filme)
     {
         try
         {
@@ -65,7 +65,7 @@ public class FilmesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutFilme(int id, Filme filme)
+    public async Task<ActionResult<FilmeDto>> PutFilme(int id, FilmeDto filme)
     {
         try
         {
@@ -73,8 +73,7 @@ public class FilmesController : ControllerBase
             {
                 return BadRequest();
             }
-            await filmesService.Update(id, filme);
-            return Ok();
+            return Ok(await filmesService.Update(id, filme));
         }
         catch (Exception ex)
         {

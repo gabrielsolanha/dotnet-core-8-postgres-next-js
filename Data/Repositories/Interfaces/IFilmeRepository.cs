@@ -1,6 +1,6 @@
-﻿using AplicacaoWeb.Models;
+﻿using AplicacaoWeb.Models.Entities;
 
-namespace AplicacaoWeb.Data.Repository.Interfaces
+namespace AplicacaoWeb.Data.Repositories.Interfaces
 {
     public interface IFilmeRepository : IRepositoryBase<Filme>
     {

@@ -1,12 +1,12 @@
 ﻿using AplicacaoWeb.Data.Repository;
-using AplicacaoWeb.Data.Repository.Interfaces;
-using AplicacaoWeb.Models;
-using AplicacaoWeb.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.DependencyInjection;
+using AplicacaoWeb.Data.Repositories.Interfaces;
+using AplicacaoWeb.Models.Entities;
+using AplicacaoWeb.Aplication;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System;
+using AplicacaoWeb.Service.Interfaces;
+using AplicacaoWeb.Data.UnitOfWork;
+using AplicacaoWeb.Models.Dtos.Filme;
+using AplicacaoWeb.Service;
 
 
 namespace AplicacaoWeb.IoC
@@ -17,17 +17,39 @@ namespace AplicacaoWeb.IoC
         {
             RegisterServices(services);
             RegistrarRepositorios(services);
+            RegisterApplication(services);
         }
 
         private static void RegistrarRepositorios(IServiceCollection services)
         {
+            //Filme
             services.TryAddScoped<IRepositoryBase<Filme>, RepositoryBase<Filme>>();
             services.TryAddScoped<IFilmeRepository, FilmeRepository>();
+            //User
+            services.TryAddScoped<IRepositoryBase<User>, RepositoryBase<User>>();
+            services.TryAddScoped<IUserRepository, UserRepository>();
+            //Screen
+            services.TryAddScoped<IRepositoryBase<Screen>, RepositoryBase<Screen>>();
+            services.TryAddScoped<IScreenRepository, ScreenRepository>();
+            //UserScreen
+            services.TryAddScoped<IRepositoryBase<UserScreen>, RepositoryBase<UserScreen>>();
+            //Category
+            services.TryAddScoped<IRepositoryBase<Category>, RepositoryBase<Category>>();
+            //ImageUrlAndName
+            services.TryAddScoped<IRepositoryBase<ImageUrlAndName>, RepositoryBase<ImageUrlAndName>>();
+            //UnitOfWork
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
+        private static void RegisterApplication(IServiceCollection services)
+        {
+            //Filme
+            services.TryAddScoped<IApp<FilmeDto>, FilmesApp>();
+            services.TryAddScoped<IFilmesApp, FilmesApp>();
+        }
         private static void RegisterServices(IServiceCollection services)
         {
-            services.TryAddScoped<IService<Filme>, FilmesService>();
+            services.TryAddScoped<IS3Service, S3Service>();
         }
 
     }

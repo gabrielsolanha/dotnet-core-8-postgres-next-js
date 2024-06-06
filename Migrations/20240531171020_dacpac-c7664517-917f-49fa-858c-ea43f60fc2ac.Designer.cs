@@ -3,6 +3,7 @@ using System;
 using AplicacaoWeb.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AplicacaoWeb.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240531171020_dacpac-c7664517-917f-49fa-858c-ea43f60fc2ac")]
+    partial class dacpacc7664517917f49fa858cea43f60fc2ac
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,6 +85,7 @@ namespace AplicacaoWeb.Migrations
                         .HasColumnName("Ativo");
 
                     b.Property<string>("Plate")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Title")
