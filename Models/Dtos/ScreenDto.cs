@@ -1,6 +1,6 @@
 ﻿namespace AplicacaoWeb.Models.Dtos
 {
-    public class ScreenDto
+    public class ScreenDto : BaseDto
     {
         public virtual string? ScreenName { get; set; }
         public virtual string? ScreenType { get; set; }

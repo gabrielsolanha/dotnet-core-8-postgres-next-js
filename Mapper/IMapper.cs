@@ -6,5 +6,6 @@ namespace AplicacaoWeb.Mapper
     {
         T MapperToDto(S entity);
         S MapperFromDto(T dto);
+        S MapperFromDtoToUpdate(T dto, S currentValue);
     }
 }

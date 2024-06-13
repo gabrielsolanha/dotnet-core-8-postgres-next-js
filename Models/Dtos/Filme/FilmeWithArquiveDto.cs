@@ -7,7 +7,8 @@
         public virtual string? Plate { get; set; }
         public virtual int UserResponsibleId { get; set; }
         public virtual int CategoryId { get; set; }
-        public virtual IEnumerable<IFormFile> ImageFiles { get; set; }
+        public virtual IEnumerable<IFormFile>? ImageFiles { get; set; }
+        public virtual List<int>? ImageFilesToDelete { get; set; }
     }
 
 

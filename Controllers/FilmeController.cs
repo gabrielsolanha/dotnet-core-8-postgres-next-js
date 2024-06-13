@@ -4,6 +4,7 @@ using AplicacaoWeb.Aplication;
 using AplicacaoWeb.Models.Entities;
 using AplicacaoWeb.Models.Dtos.Filme;
 using AplicacaoWeb.Models.Dtos;
+using Amazon.S3.Model;
 
 [Route("API/[controller]")]
 [ApiController]
@@ -17,11 +18,14 @@ public class FilmeController : ControllerBase
     }
 
     [HttpPost("list")]
-    public async Task<ActionResult<IEnumerable<FilmeDto>>> ListFilmes(PaginationDto<FilmeDto> filme)
+    public IActionResult ListFilmes(PaginationDto<FilmeDto> filtro)
     {
         try
         {
-            return Ok(filmesService.List(filme));
+            DataPaged<IEnumerable<FilmeDto>> dados =
+            new DataPaged<IEnumerable<FilmeDto>>(filtro.ItemCount, filmesService.List(filtro).ToList());
+            dados.Size = filtro.ItemCount;
+            return Ok(dados);
         }
         catch (Exception ex)
         {
@@ -64,16 +68,13 @@ public class FilmeController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<FilmeDto>> PutFilme(int id, FilmeDto filme)
+    [HttpPut]
+    public async Task<ActionResult<FilmeDto>> PutFilme(FilmeWithArquiveDto filme)
     {
         try
         {
-            if (id != filme.Id)
-            {
-                return BadRequest();
-            }
-            return Ok(await filmesService.Update(id, filme));
+            if(filme.Id.HasValue) return Ok(await filmesService.Update((int) filme.Id, filme));
+            return BadRequest();
         }
         catch (Exception ex)
         {

@@ -37,6 +37,25 @@ namespace AplicacaoWeb.Mapper
             return filme;
         }
 
+        public Filme MapperFromDtoToUpdate(FilmeDto dto, Filme currentValue)
+        {
+            Filme filme = new Filme()
+            {
+                CategoryId = (int)dto.CategoryId,
+                Description = dto.Description,
+                Id = currentValue.Id,
+                Title = dto.Title,
+                Plate = dto.Plate,
+                UserResponsibleId = (int)dto.UserResponsibleId,
+                Images = currentValue.Images,
+                IsDeleted = dto.IsDeleted,
+                CreatedAt = currentValue.CreatedAt,
+                CreatedBy = currentValue.CreatedBy,
+                
+            };
+            return filme;
+        }
+
         public FilmeDto MapperToDto(Filme entity)
         {
             FilmeDto filme = new FilmeDto()
@@ -45,6 +64,10 @@ namespace AplicacaoWeb.Mapper
                 Description = entity.Description,
                 Id = entity.Id,
                 Title = entity.Title,
+                CreatedAt = entity.CreatedAt,
+                CreatedBy = entity.CreatedBy,
+                UpdatedBy = entity.UpdatedBy,
+                UpdatedDate = entity.UpdatedDate,
                 Plate = entity.Plate,
                 UserResponsibleId = entity.UserResponsibleId,
                 Images = new List<ImageUrlAndNameDto>(),
