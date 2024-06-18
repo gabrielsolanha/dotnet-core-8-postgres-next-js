@@ -1,11 +1,11 @@
-﻿using AplicacaoWeb.Data.Repositories.Interfaces;
+﻿using AplicacaoWeb.Aplication.Interfaces;
+using AplicacaoWeb.Data.Repositories.Interfaces;
 using AplicacaoWeb.Data.UnitOfWork;
 using AplicacaoWeb.Mapper;
 using AplicacaoWeb.Models.Dtos;
 using AplicacaoWeb.Models.Dtos.Filme;
 using AplicacaoWeb.Models.Entities;
 using AplicacaoWeb.Service.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace AplicacaoWeb.Aplication
 {
@@ -18,7 +18,7 @@ namespace AplicacaoWeb.Aplication
         private readonly IS3Service iS3Service;
 
         public FilmesApp(IFilmeRepository filmeRepository,
-            IUnitOfWork unitOfWork, 
+            IUnitOfWork unitOfWork,
             IRepositoryBase<User> userRepository,
             IRepositoryBase<ImageUrlAndName> _imageUrlRepository,
             IS3Service iS3Service
@@ -51,20 +51,23 @@ namespace AplicacaoWeb.Aplication
         }
         public async Task AddImagesOnDB(FilmeDto filme)
         {
-            foreach(ImageUrlAndNameDto image in filme.Images)
+            if (filme.Images != null)
             {
-                ImageUrlAndName i = new ImageUrlAndName()
+                foreach (ImageUrlAndNameDto image in filme.Images)
                 {
-                    Url = image.Url,
-                    ArquiveName = image.ArquiveName,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "faze de teste",
-                    FilmeId = filme.Id ?? throw new Exception($"Houve um erro ao fazer a operação: Falha ao recuperar ID do filme"),
-                    IsDeleted = filme.IsDeleted,
-                };
-                _imageUrlRepository.Add(i);
+                    ImageUrlAndName i = new ImageUrlAndName()
+                    {
+                        Url = image.Url,
+                        ArquiveName = image.ArquiveName,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = "faze de teste",
+                        FilmeId = filme.Id ?? throw new Exception($"Houve um erro ao fazer a operação: Falha ao recuperar ID do filme"),
+                        IsDeleted = filme.IsDeleted,
+                    };
+                    _imageUrlRepository.Add(i);
+                }
+                await unitOfWork.SaveAsync();
             }
-            await unitOfWork.SaveAsync();
         }
         public async Task<FilmeDto> Add(FilmeWithArquiveDto filmeDtoAdd)
         {
@@ -91,7 +94,7 @@ namespace AplicacaoWeb.Aplication
         private async Task<FilmeDto> GenerateAWSLink(FilmeWithArquiveDto filme)
         {
             List<ImageUrlAndNameDto> images = new List<ImageUrlAndNameDto>();
-            foreach(IFormFile image in filme.ImageFiles)
+            foreach (IFormFile image in filme.ImageFiles)
             {
                 ImageUrlAndNameDto temp = new ImageUrlAndNameDto
                 {
@@ -109,6 +112,7 @@ namespace AplicacaoWeb.Aplication
             {
                 CategoryId = filme.CategoryId,
                 Description = filme.Description,
+                Rodagem = filme.Rodagem,
                 Id = filme.Id,
                 Title = filme.Title,
                 Plate = filme.Plate,
@@ -124,6 +128,7 @@ namespace AplicacaoWeb.Aplication
             {
                 CategoryId = filme.CategoryId,
                 Description = filme.Description,
+                Rodagem = filme.Rodagem,
                 Id = filme.Id,
                 Title = filme.Title,
                 Plate = filme.Plate,
@@ -160,9 +165,9 @@ namespace AplicacaoWeb.Aplication
             }
         }
 
-        public async Task<FilmeDto> Get(int id)
+        public FilmeDto Get(int id)
         {
-            Filme filme = filmeRepository.GetAllWhen(x => x.Id == id).FirstOrDefault();
+            var filme = filmeRepository.GetAllWhen(x => x.Id == id).FirstOrDefault();
 
             if (filme == null)
             {
@@ -179,12 +184,13 @@ namespace AplicacaoWeb.Aplication
             var source = filmeRepository.GetAllWhen(x => (!filtro.Filter.Id.HasValue || x.Id == filtro.Filter.Id) &&
                                                          (!filtro.Filter.UserResponsibleId.HasValue || x.UserResponsibleId == filtro.Filter.UserResponsibleId) &&
                                                          (!filtro.Filter.CategoryId.HasValue || x.CategoryId == filtro.Filter.CategoryId) &&
+                                                         (!filtro.Filter.Rodagem.HasValue || x.Rodagem == filtro.Filter.Rodagem) &&
                                                          (string.IsNullOrEmpty(filtro.Filter.Plate) || x.Plate == filtro.Filter.Plate) &&
                                                          (string.IsNullOrEmpty(filtro.Filter.Description) || x.Description.ToLower().Contains(filtro.Filter.Description.ToLower())) &&
                                                          (string.IsNullOrEmpty(filtro.Filter.Title) || x.Title.ToLower().Contains(filtro.Filter.Title.ToLower())) &&
                                                          x.IsDeleted == filtro.Filter.IsDeleted);
             return MapFilter(source, filtro);
-            
+
         }
 
         private IEnumerable<FilmeDto> MapFilter(IEnumerable<Filme> filmes, PaginationDto<FilmeDto> filtro)
@@ -198,7 +204,7 @@ namespace AplicacaoWeb.Aplication
             }
         }
         private IEnumerable<Filme> Pagination(IEnumerable<Filme> filmes, PaginationDto<FilmeDto> filtro)
-        { 
+        {
 
             var total = filmes.Count();
             filmes = filmes.Skip((filtro.Page) * filtro.ItemCount).Take(filtro.ItemCount);
@@ -220,52 +226,40 @@ namespace AplicacaoWeb.Aplication
             {
                 FilmeDto filmeDto = new FilmeDto();
                 unitOfWork.BeginTransaction();
-                try
+                if (filmedtoArquive.ImageFilesToDelete != null)
                 {
-                    if (filmedtoArquive.ImageFilesToDelete != null)
+                    foreach (int deletar in filmedtoArquive.ImageFilesToDelete)
                     {
-                        foreach (int deletar in filmedtoArquive.ImageFilesToDelete)
-                        {
-                            ImageUrlAndName db = _imageUrlRepository.GetAllWhen(x => x.Id == deletar).FirstOrDefault() ?? throw new Exception($"Houve um erro ao fazer a operação: Falha ao recuperar Imagem no data base");
-                            await iS3Service.DeleteFromS3Async(db.Url);
-                            _imageUrlRepository.Delete(db);
-                        }
+                        ImageUrlAndName db = _imageUrlRepository.GetAllWhen(x => x.Id == deletar).FirstOrDefault() ?? throw new Exception($"Houve um erro ao fazer a operação: Falha ao recuperar Imagem no data base");
+                        await iS3Service.DeleteFromS3Async(db.Url);
+                        _imageUrlRepository.Delete(db);
                     }
+                }
 
-                    if (filmedtoArquive.ImageFiles != null)
-                    {
-                        filmeDto = await GenerateAWSLink(filmedtoArquive);
-                        await AddImagesOnDB(filmeDto);
-                    }
-                    else
-                    {
-                        filmeDto = new FilmeDto()
-                        {
-                            CategoryId = filmedtoArquive.CategoryId,
-                            Description = filmedtoArquive.Description,
-                            Id = filmedtoArquive.Id,
-                            Title = filmedtoArquive.Title,
-                            Plate = filmedtoArquive.Plate,
-                            UserResponsibleId = filmedtoArquive.UserResponsibleId,
-                            IsDeleted = filmedtoArquive.IsDeleted
-                        };
-                    }
-                    filmeDto = await Update(id, filmeDto);
-                    unitOfWork.Commit();
-                    return filmeDto;
-                }
-                catch (DbUpdateConcurrencyException e)
+                if (filmedtoArquive.ImageFiles != null)
                 {
-                    if (!filmeRepository.FilmeExists(id))
-                    {
-                        throw new Exception("Nenhum filme encontrado.");
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                    }
+                    filmeDto = await GenerateAWSLink(filmedtoArquive);
+                    await AddImagesOnDB(filmeDto);
                 }
+                else
+                {
+                    filmeDto = new FilmeDto()
+                    {
+                        CategoryId = filmedtoArquive.CategoryId,
+                        Description = filmedtoArquive.Description,
+                        Rodagem = filmedtoArquive.Rodagem,
+                        Id = filmedtoArquive.Id,
+                        Title = filmedtoArquive.Title,
+                        Plate = filmedtoArquive.Plate,
+                        UserResponsibleId = filmedtoArquive.UserResponsibleId,
+                        IsDeleted = filmedtoArquive.IsDeleted
+                    };
+                }
+                filmeDto = await Update(id, filmeDto);
+                unitOfWork.Commit();
+                return filmeDto;
+
+            }
             catch (Exception e)
             {
                 unitOfWork.Rollback();

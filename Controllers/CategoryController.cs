@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AplicacaoWeb.Responses;
 using AplicacaoWeb.Models.Entities;
-using AplicacaoWeb.Models.Dtos.Filme;
 using AplicacaoWeb.Models.Dtos;
 using AplicacaoWeb.Aplication.Interfaces;
 using AplicacaoWeb.Models.Dtos.Responses;
@@ -9,22 +8,23 @@ using Microsoft.AspNetCore.Authorization;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class FilmeController : ControllerBase
+[Authorize]
+public class CategoryController : ControllerBase
 {
-    private readonly IFilmesApp filmesService;
+    private readonly IApp<CategoryDto> categoriesService;
 
-    public FilmeController(IFilmesApp _filmesService)
+    public CategoryController(IApp<CategoryDto> _categoriesService)
     {
-        filmesService = _filmesService ?? throw new ArgumentNullException(nameof(_filmesService));
+        categoriesService = _categoriesService ?? throw new ArgumentNullException(nameof(_categoriesService));
     }
 
     [HttpPost("list")]
-    public IActionResult ListFilmes(PaginationDto<FilmeDto> filtro)
+    public IActionResult ListCategories(PaginationDto<CategoryDto> filtro)
     {
         try
         {
-            DataPaged<IEnumerable<FilmeDto>> dados =
-            new DataPaged<IEnumerable<FilmeDto>>(filtro.ItemCount, filmesService.List(filtro).ToList());
+            DataPaged<IEnumerable<CategoryDto>> dados =
+            new DataPaged<IEnumerable<CategoryDto>>(filtro.ItemCount, categoriesService.List(filtro).ToList());
             dados.Size = filtro.ItemCount;
             return Ok(dados);
         }
@@ -38,70 +38,67 @@ public class FilmeController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Filme> GetFilme(int id)
+    public  ActionResult<Category> GetCategory(int id)
     {
         try
         {
-            return Ok(filmesService.Get(id));
+            return Ok(categoriesService.Get(id));
         }
         catch (Exception ex)
         {
             return new CustomErrorResult(
                 500,
-                new ErrorMessages("Ocorreu um erro ao obter o filme: " + ex.Message)
+                new ErrorMessages("Ocorreu um erro ao obter o category: " + ex.Message)
             );
         }
     }
 
-    [Authorize]
     [HttpPost]
-    public async Task<ActionResult<FilmeDto>> PostFilme(FilmeWithArquiveDto filme)
+    public async Task<ActionResult<CategoryDto>> PostCategory(CategoryDto category)
     {
         try
         {
-            return Ok(await filmesService.Add(filme));
+            return Ok(await categoriesService.Add(category));
         }
         catch (Exception ex)
         {
             return new CustomErrorResult(
                 500,
-                new ErrorMessages("Ocorreu um erro ao adicionar novo filme: " + ex.Message)
+                new ErrorMessages("Ocorreu um erro ao adicionar novo category: " + ex.Message)
             );
         }
     }
 
-    [Authorize]
     [HttpPut]
-    public async Task<ActionResult<FilmeDto>> PutFilme(FilmeWithArquiveDto filme)
+    public async Task<ActionResult<CategoryDto>> PutCategory(CategoryDto category)
     {
         try
         {
-            if(filme.Id.HasValue) return Ok(await filmesService.Update((int) filme.Id, filme));
+            if(category.Id.HasValue) return Ok(await categoriesService.Update((int) category.Id, category));
             return BadRequest();
         }
         catch (Exception ex)
         {
             return new CustomErrorResult(
                 500,
-                new ErrorMessages("Ocorreu um erro ao alterar o filme: " + ex.Message)
+                new ErrorMessages("Ocorreu um erro ao alterar o category: " + ex.Message)
             );
         }
     }
 
-    [Authorize]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteFilme(int id)
+    public async Task<IActionResult> DeleteCategory(int id)
     {
         try
         {
-            await filmesService.Delete(id);
+            await categoriesService.Delete(id);
             return Ok();
         }
         catch (Exception ex)
         {
             return new CustomErrorResult(
                 500,
-                new ErrorMessages("Ocorreu um erro ao deletar o filme: " + ex.Message)
+                new ErrorMessages("Ocorreu um erro ao deletar o category: " + ex.Message)
             );
         }
     }

@@ -2,7 +2,7 @@
 
 namespace AplicacaoWeb.Models.Dtos
 {
-    public class UserDto
+    public class UserDto : BaseDto
     {
         public virtual string? UserName { get; set; }
         public virtual string? Telefone { get; set; }

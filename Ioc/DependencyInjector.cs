@@ -7,6 +7,8 @@ using AplicacaoWeb.Service.Interfaces;
 using AplicacaoWeb.Data.UnitOfWork;
 using AplicacaoWeb.Models.Dtos.Filme;
 using AplicacaoWeb.Service;
+using AplicacaoWeb.Models.Dtos;
+using AplicacaoWeb.Aplication.Interfaces;
 
 
 namespace AplicacaoWeb.IoC
@@ -46,10 +48,14 @@ namespace AplicacaoWeb.IoC
             //Filme
             services.TryAddScoped<IApp<FilmeDto>, FilmesApp>();
             services.TryAddScoped<IFilmesApp, FilmesApp>();
+            //Category
+            services.TryAddScoped<IApp<CategoryDto>, CategoriesApp>();
         }
         private static void RegisterServices(IServiceCollection services)
         {
             services.TryAddScoped<IS3Service, S3Service>();
+            services.TryAddScoped<ITokenService, TokenService>();
+            services.TryAddScoped<IAuthService, AuthService>();
         }
 
     }

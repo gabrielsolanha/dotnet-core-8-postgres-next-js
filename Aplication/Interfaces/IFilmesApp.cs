@@ -1,6 +1,6 @@
 ﻿using AplicacaoWeb.Models.Dtos.Filme;
 
-namespace AplicacaoWeb.Aplication
+namespace AplicacaoWeb.Aplication.Interfaces
 {
     public interface IFilmesApp : IApp<FilmeDto>
     {

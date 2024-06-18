@@ -1,4 +1,5 @@
-﻿using AplicacaoWeb.Models.Dtos;
+﻿using AplicacaoWeb.Mapper.Interface;
+using AplicacaoWeb.Models.Dtos;
 using AplicacaoWeb.Models.Dtos.Filme;
 using AplicacaoWeb.Models.Entities;
 
@@ -11,6 +12,7 @@ namespace AplicacaoWeb.Mapper
             Filme filme = new Filme() { 
                 CategoryId = (int) dto.CategoryId,
                 Description = dto.Description,
+                Rodagem = dto.Rodagem ?? 0,
                 Id = dto.Id ?? 0,
                 Title = dto.Title,
                 Plate = dto.Plate,
@@ -43,6 +45,7 @@ namespace AplicacaoWeb.Mapper
             {
                 CategoryId = (int)dto.CategoryId,
                 Description = dto.Description,
+                Rodagem = dto.Rodagem ?? 0,
                 Id = currentValue.Id,
                 Title = dto.Title,
                 Plate = dto.Plate,
@@ -62,6 +65,7 @@ namespace AplicacaoWeb.Mapper
             {
                 CategoryId = entity.CategoryId,
                 Description = entity.Description,
+                Rodagem = entity.Rodagem,
                 Id = entity.Id,
                 Title = entity.Title,
                 CreatedAt = entity.CreatedAt,

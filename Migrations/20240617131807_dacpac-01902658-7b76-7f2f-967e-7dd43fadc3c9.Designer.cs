@@ -3,6 +3,7 @@ using System;
 using AplicacaoWeb.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AplicacaoWeb.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240617131807_dacpac-01902658-7b76-7f2f-967e-7dd43fadc3c9")]
+    partial class dacpac019026587b767f2f967e7dd43fadc3c9
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -266,9 +268,6 @@ namespace AplicacaoWeb.Migrations
                     b.HasIndex("Telefone")
                         .IsUnique();
 
-                    b.HasIndex("UserName")
-                        .IsUnique();
-
                     b.ToTable("User", (string)null);
                 });
 
@@ -278,9 +277,6 @@ namespace AplicacaoWeb.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("AccessLevel")
                         .HasColumnType("integer");
 
                     b.HasKey("ScreenId", "UserId");

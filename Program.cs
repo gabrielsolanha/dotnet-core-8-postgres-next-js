@@ -3,13 +3,49 @@ using AplicacaoWeb.Dacpac;
 using AplicacaoWeb.IoC;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using AplicacaoWeb.Domain;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 DependencyInjector.Register(builder.Services);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+    {
+        new OpenApiSecurityScheme
+        {
+        Reference = new OpenApiReference
+            {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+            },
+            Scheme = "oauth2",
+            Name = "Bearer",
+            In = ParameterLocation.Header,
+
+        },
+        new List<string>()
+        }
+    });
+
+
+});
 
 string environment = Environment.GetEnvironmentVariable("GSENVIRONMENT") ?? "DEV";
 if (environment == "DEV")
@@ -45,6 +81,27 @@ builder.Services.AddCors(options =>
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
+
+var key = Encoding.ASCII.GetBytes((new Key()).GetSecret());
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
+
+
 
 builder.Services.AddTransient<DataInsert>();
 

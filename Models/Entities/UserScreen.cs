@@ -1,4 +1,6 @@
-﻿namespace AplicacaoWeb.Models.Entities
+﻿using AplicacaoWeb.Models.Enums;
+
+namespace AplicacaoWeb.Models.Entities
 {
     public class UserScreen
     {
@@ -6,5 +8,6 @@
         public virtual User Users { get; set; }
         public virtual int ScreenId { get; set; }
         public virtual Screen Screens { get; set; }
+        public virtual AccessLevel AccessLevel { get ; set; }
     }
 }

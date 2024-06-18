@@ -1,6 +1,6 @@
 ﻿using AplicacaoWeb.Models.Dtos;
 
-namespace AplicacaoWeb.Mapper
+namespace AplicacaoWeb.Mapper.Interface
 {
     public interface IMapper<T, S> where T : BaseDto
     {

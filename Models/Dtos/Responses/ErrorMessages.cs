@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AplicacaoWeb.Responses
+namespace AplicacaoWeb.Models.Dtos.Responses
 {
     public class ErrorMessages
     {

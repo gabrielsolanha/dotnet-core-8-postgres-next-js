@@ -5,6 +5,7 @@
         public virtual string Title { get; set; }
         public virtual string Description { get; set; }
         public virtual string? Plate { get; set; }
+        public virtual long Rodagem { get; set; }
         public virtual int UserResponsibleId { get; set; }
         public virtual User UserResponsible { get; set; }
         public virtual Category Category { get; set; }

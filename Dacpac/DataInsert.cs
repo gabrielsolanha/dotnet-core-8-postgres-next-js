@@ -2,6 +2,7 @@
 using AplicacaoWeb.Data.UnitOfWork;
 using AplicacaoWeb.Domain;
 using AplicacaoWeb.Models.Entities;
+using AplicacaoWeb.Models.Enums;
 
 namespace AplicacaoWeb.Dacpac
 {
@@ -129,6 +130,8 @@ namespace AplicacaoWeb.Dacpac
             {
                 var screens = _screenRepository.GetAllWhen(s => true);
 
+                AccessLevel gabsolAdm = (AccessLevel) 15;
+
                 foreach (var screen in screens)
                 {
                     if (!(_userScreenRepository.GetAllWhen(us => us.UserId == existingUser.Id && us.ScreenId == screen.Id)).Any())
@@ -136,7 +139,8 @@ namespace AplicacaoWeb.Dacpac
                         var userScreen = new UserScreen
                         {
                             UserId = existingUser.Id,
-                            ScreenId = screen.Id
+                            ScreenId = screen.Id,
+                            AccessLevel = gabsolAdm
                         };
 
                         _userScreenRepository.Add(userScreen);

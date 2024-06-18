@@ -11,8 +11,8 @@ namespace AplicacaoWeb.Responses
         }
     }
 
-    public static class LastCustomErrorResult 
-    { 
+    public static class LastCustomErrorResult
+    {
         public static object CustomErrorResultObject { get; set; }
     }
-} 
+}
