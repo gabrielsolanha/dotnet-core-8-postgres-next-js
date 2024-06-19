@@ -18,7 +18,6 @@ namespace AplicacaoWeb.Data.Maps
             builder.Property(x => x.Password).HasColumnName("Password").IsRequired();
             builder.HasIndex(x => x.Telefone).IsUnique();
             builder.HasIndex(x => x.UserName).IsUnique();
-            builder.Property(x => x.IsDeleted).HasColumnName("Ativo");
 
             builder.HasMany(x => x.ScreensAcess)
                 .WithMany(x => x.UsersAuthorized)

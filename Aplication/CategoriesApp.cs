@@ -20,14 +20,14 @@ namespace AplicacaoWeb.Aplication
             this.categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
             this.unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
-        public async Task<CategoryDto> Add(CategoryDto categoryDto)
+        public async Task<CategoryDto> Add(CategoryDto categoryDto, string changeMaker)
         {
             try
             {
                 unitOfWork.BeginTransaction();
                 var mapper = new CategoryMapper();
                 Category category = mapper.MapperFromDto(categoryDto);
-                category.CreatedBy = "Faze de teste";
+                category.CreatedBy = changeMaker;
                 category.CreatedAt = DateTime.UtcNow;
                 categoryRepository.Add(category);
                 await unitOfWork.SaveAsync();
@@ -63,7 +63,7 @@ namespace AplicacaoWeb.Aplication
             }
         }
 
-        public CategoryDto Get(int id)
+        public async Task<CategoryDto> Get(int id)
         {
             var category = categoryRepository.GetAllWhen(x => x.Id == id).FirstOrDefault();
 
@@ -108,7 +108,7 @@ namespace AplicacaoWeb.Aplication
             return categories;
         }
 
-        public async Task<CategoryDto> Update(int id, CategoryDto categorydto)
+        public async Task<CategoryDto> Update(int id, CategoryDto categorydto, string changeMaker)
         {
 
             var mapper = new CategoryMapper();
@@ -125,7 +125,7 @@ namespace AplicacaoWeb.Aplication
                 var category = mapper.MapperFromDtoToUpdate(categorydto, existingCategory);
 
                 category.UpdatedDate = DateTime.UtcNow;
-                category.UpdatedBy = "faze de teste";
+                category.UpdatedBy = changeMaker;
 
                 categoryRepository.Update(category);
                 await unitOfWork.SaveAsync();

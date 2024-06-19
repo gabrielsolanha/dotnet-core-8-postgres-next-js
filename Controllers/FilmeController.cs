@@ -6,15 +6,19 @@ using AplicacaoWeb.Models.Dtos;
 using AplicacaoWeb.Aplication.Interfaces;
 using AplicacaoWeb.Models.Dtos.Responses;
 using Microsoft.AspNetCore.Authorization;
+using AplicacaoWeb.Service.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 public class FilmeController : ControllerBase
 {
     private readonly IFilmesApp filmesService;
+    private readonly IAuthService authService;
 
-    public FilmeController(IFilmesApp _filmesService)
+    public FilmeController(IFilmesApp _filmesService, IAuthService _authService)
     {
+        authService = _authService ?? throw new ArgumentNullException(nameof(_authService));
         filmesService = _filmesService ?? throw new ArgumentNullException(nameof(_filmesService));
     }
 
@@ -38,11 +42,11 @@ public class FilmeController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Filme> GetFilme(int id)
+    public async Task<ActionResult<Filme>> GetFilme(int id)
     {
         try
         {
-            return Ok(filmesService.Get(id));
+            return Ok(await filmesService.Get(id));
         }
         catch (Exception ex)
         {
@@ -59,7 +63,23 @@ public class FilmeController : ControllerBase
     {
         try
         {
-            return Ok(await filmesService.Add(filme));
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var access = authService.VerifyTokenAccess(token, "Filme", "Create");
+            if (access == null)
+            {
+                return new CustomErrorResult(
+                    400,
+                    new ErrorMessages("Usuário não tem este acesso.")
+                );
+            }
+            return Ok(await filmesService.Add(filme, access.ToString()));
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            return new CustomErrorResult(
+                400,
+                new ErrorMessages("O token está expirado. ")
+            );
         }
         catch (Exception ex)
         {
@@ -76,8 +96,24 @@ public class FilmeController : ControllerBase
     {
         try
         {
-            if(filme.Id.HasValue) return Ok(await filmesService.Update((int) filme.Id, filme));
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var access = authService.VerifyTokenAccess(token, "Filme", "Update");
+            if (access == null)
+            {
+                return new CustomErrorResult(
+                    400,
+                    new ErrorMessages("Usuário não tem este acesso.")
+                );
+            }
+            if (filme.Id.HasValue) return Ok(await filmesService.Update((int) filme.Id, filme, access.ToString()));
             return BadRequest();
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            return new CustomErrorResult(
+                400,
+                new ErrorMessages("O token está expirado. ")
+            );
         }
         catch (Exception ex)
         {
@@ -94,8 +130,24 @@ public class FilmeController : ControllerBase
     {
         try
         {
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var access = authService.VerifyTokenAccess(token, "Filme", "Delete");
+            if (access == null)
+            {
+                return new CustomErrorResult(
+                    400,
+                    new ErrorMessages("Usuário não tem este acesso.")
+                );
+            }
             await filmesService.Delete(id);
             return Ok();
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            return new CustomErrorResult(
+                400,
+                new ErrorMessages("O token está expirado. ")
+            );
         }
         catch (Exception ex)
         {

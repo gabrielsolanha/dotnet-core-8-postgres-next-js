@@ -9,25 +9,40 @@ using AplicacaoWeb.Service.Interfaces;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-[Authorize]
-public class CategoryController : ControllerBase
+public class UserController : ControllerBase
 {
-    private readonly IApp<CategoryDto> categoriesService;
+    private readonly IUsersApp usersService;
     private readonly IAuthService authService;
 
-    public CategoryController(IApp<CategoryDto> _categoriesService, IAuthService _authService)
+    public UserController(IUsersApp _usersService, IAuthService _authService)
     {
         authService = _authService ?? throw new ArgumentNullException(nameof(_authService));
-        categoriesService = _categoriesService ?? throw new ArgumentNullException(nameof(_categoriesService));
+        usersService = _usersService ?? throw new ArgumentNullException(nameof(_usersService));
     }
 
+    [HttpGet("public/{id}")]
+    public async Task<ActionResult<Filme>> GetUserPublic(int id)
+    {
+        try
+        {
+            return Ok(await usersService.GetUserPublicInfo(id));
+        }
+        catch (Exception ex)
+        {
+            return new CustomErrorResult(
+                500,
+                new ErrorMessages("Ocorreu um erro ao obter o user: " + ex.Message)
+            );
+        }
+    }
+    [Authorize]
     [HttpPost("list")]
-    public async Task<IActionResult> ListCategories(PaginationDto<CategoryDto> filtro)
+    public async Task<IActionResult> ListUsers(PaginationDto<UserDto> filtro)
     {
         try
         {
             var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var access = await authService.VerifyTokenAccess(token, "Category", "View");
+            var access = await authService.VerifyTokenAccess(token, "User", "View");
             if (access == null)
             {
                 return new CustomErrorResult(
@@ -35,8 +50,17 @@ public class CategoryController : ControllerBase
                     new ErrorMessages("Usuário não tem este acesso.")
                 );
             }
-            DataPaged<IEnumerable<CategoryDto>> dados =
-            new DataPaged<IEnumerable<CategoryDto>>(filtro.ItemCount, categoriesService.List(filtro).ToList());
+            DataPaged<IEnumerable<UserDto>> dados;
+            if (access.GetType() == typeof(UserDto))
+            {
+                var us = new List<UserDto>
+                {
+                    (UserDto)access
+                };
+                dados = new DataPaged<IEnumerable<UserDto>>(filtro.ItemCount, usersService.List(filtro).ToList());
+                filtro.ItemCount = 1;
+            }
+            dados = new DataPaged<IEnumerable<UserDto>>(filtro.ItemCount, usersService.List(filtro).ToList());
             dados.Size = filtro.ItemCount;
             return Ok(dados);
         }
@@ -49,13 +73,14 @@ public class CategoryController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpGet("{id}")]
-    public  async Task<ActionResult<Category>> GetCategory(int id)
+    public  async Task<ActionResult<User>> GetUser(int id)
     {
         try
         {
             var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var access = authService.VerifyTokenAccess(token, "Category", "View");
+            var access = authService.VerifyTokenAccess(token, "User", "View");
             if (access == null)
             {
                 return new CustomErrorResult(
@@ -63,24 +88,25 @@ public class CategoryController : ControllerBase
                     new ErrorMessages("Usuário não tem este acesso.")
                 );
             }
-            return Ok(await categoriesService.Get(id));
+            return Ok(await usersService.Get(id));
         }
         catch (Exception ex)
         {
             return new CustomErrorResult(
                 500,
-                new ErrorMessages("Ocorreu um erro ao obter o category: " + ex.Message)
+                new ErrorMessages("Ocorreu um erro ao obter o user: " + ex.Message)
             );
         }
     }
 
+    [Authorize]
     [HttpPost]
-    public async Task<ActionResult<CategoryDto>> PostCategory(CategoryDto category)
+    public async Task<ActionResult<UserDto>> PostUser(UserDto user)
     {
         try
         {
             var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var access = authService.VerifyTokenAccess(token, "Category", "Create");
+            var access = authService.VerifyTokenAccess(token, "User", "Create");
             if (access == null)
             {
                 return new CustomErrorResult(
@@ -88,24 +114,25 @@ public class CategoryController : ControllerBase
                     new ErrorMessages("Usuário não tem este acesso.")
                 );
             }
-            return Ok(await categoriesService.Add(category, access.ToString()));
+            return Ok(await usersService.Add(user, access.ToString()));
         }
         catch (Exception ex)
         {
             return new CustomErrorResult(
                 500,
-                new ErrorMessages("Ocorreu um erro ao adicionar novo category: " + ex.Message)
+                new ErrorMessages("Ocorreu um erro ao adicionar novo user: " + ex.Message)
             );
         }
     }
 
+    [Authorize]
     [HttpPut]
-    public async Task<ActionResult<CategoryDto>> PutCategory(CategoryDto category)
+    public async Task<ActionResult<UserDto>> PutUser(UserDto user)
     {
         try
         {
             var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var access = authService.VerifyTokenAccess(token, "Category", "Update");
+            var access = authService.VerifyTokenAccess(token, "User", "Update");
             if (access == null)
             {
                 return new CustomErrorResult(
@@ -113,25 +140,26 @@ public class CategoryController : ControllerBase
                     new ErrorMessages("Usuário não tem este acesso.")
                 );
             }
-            if (category.Id.HasValue) return Ok(await categoriesService.Update((int) category.Id, category, access.ToString()));
+            if (user.Id.HasValue) return Ok(await usersService.Update((int) user.Id, user, access.ToString()));
             return BadRequest();
         }
         catch (Exception ex)
         {
             return new CustomErrorResult(
                 500,
-                new ErrorMessages("Ocorreu um erro ao alterar o category: " + ex.Message)
+                new ErrorMessages("Ocorreu um erro ao alterar o user: " + ex.Message)
             );
         }
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteCategory(int id)
+    public async Task<IActionResult> DeleteUser(int id)
     {
         try
         {
             var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var access = authService.VerifyTokenAccess(token, "Category", "Delete");
+            var access = authService.VerifyTokenAccess(token, "User", "Delete");
             if (access == null)
             {
                 return new CustomErrorResult(
@@ -139,14 +167,14 @@ public class CategoryController : ControllerBase
                     new ErrorMessages("Usuário não tem este acesso.")
                 );
             }
-            await categoriesService.Delete(id);
+            await usersService.Delete(id);
             return Ok();
         }
         catch (Exception ex)
         {
             return new CustomErrorResult(
                 500,
-                new ErrorMessages("Ocorreu um erro ao deletar o category: " + ex.Message)
+                new ErrorMessages("Ocorreu um erro ao deletar o user: " + ex.Message)
             );
         }
     }

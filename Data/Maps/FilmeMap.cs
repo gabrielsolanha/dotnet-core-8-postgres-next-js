@@ -17,7 +17,6 @@ namespace AplicacaoWeb.Data.Maps
             builder.Property(x => x.Title).HasColumnName("Titulo").IsRequired();
 
             builder.HasIndex(x => x.Plate).IsUnique();
-            builder.Property(x => x.IsDeleted).HasColumnName("Ativo");
 
             builder.Property(x => x.UserResponsibleId).HasColumnName("User").IsRequired();
             builder.HasOne(x => x.UserResponsible).WithMany(x => x.Filmes).HasForeignKey(x => x.UserResponsibleId);

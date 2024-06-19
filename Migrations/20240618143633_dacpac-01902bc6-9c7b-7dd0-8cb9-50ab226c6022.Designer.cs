@@ -3,6 +3,7 @@ using System;
 using AplicacaoWeb.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AplicacaoWeb.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240618143633_dacpac-01902bc6-9c7b-7dd0-8cb9-50ab226c6022")]
+    partial class dacpac01902bc69c7b7dd08cb950ab226c6022
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,7 +82,7 @@ namespace AplicacaoWeb.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
-                        .HasColumnName("Inativo");
+                        .HasColumnName("Ativo");
 
                     b.Property<string>("Plate")
                         .HasColumnType("text");
@@ -141,7 +143,7 @@ namespace AplicacaoWeb.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
-                        .HasColumnName("Inativo");
+                        .HasColumnName("Ativo");
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
@@ -181,7 +183,7 @@ namespace AplicacaoWeb.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
-                        .HasColumnName("Inativo");
+                        .HasColumnName("Ativo");
 
                     b.Property<string>("ScreenName")
                         .IsRequired()
@@ -239,7 +241,7 @@ namespace AplicacaoWeb.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
-                        .HasColumnName("Inativo");
+                        .HasColumnName("Ativo");
 
                     b.Property<string>("Password")
                         .IsRequired()

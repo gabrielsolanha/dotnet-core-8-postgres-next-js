@@ -18,7 +18,6 @@ namespace AplicacaoWeb.Data.Maps
             builder.HasOne(x => x.Filme).WithMany(x => x.Images).HasForeignKey(x => x.FilmeId);
 
             builder.HasIndex(x => x.Url).IsUnique();
-            builder.Property(x => x.IsDeleted).HasColumnName("Ativo");
         }
     }
 }

@@ -30,13 +30,13 @@ namespace AplicacaoWeb.Aplication
             this._imageUrlRepository = _imageUrlRepository ?? throw new ArgumentNullException(nameof(_imageUrlRepository));
             this.iS3Service = iS3Service ?? throw new ArgumentNullException(nameof(iS3Service));
         }
-        public async Task<FilmeDto> Add(FilmeDto filmeDto)
+        public async Task<FilmeDto> Add(FilmeDto filmeDto, string changeMaker)
         {
             try
             {
                 var mapper = new FilmeMapper();
                 Filme filme = mapper.MapperFromDto(filmeDto);
-                filme.CreatedBy = "Faze de teste";
+                filme.CreatedBy = changeMaker;
                 filme.CreatedAt = DateTime.UtcNow;
                 filmeRepository.Add(filme);
                 await unitOfWork.SaveAsync();
@@ -49,7 +49,7 @@ namespace AplicacaoWeb.Aplication
                 throw new Exception($"Houve um erro ao fazer a operação: {e.Message}");
             }
         }
-        public async Task AddImagesOnDB(FilmeDto filme)
+        public async Task AddImagesOnDB(FilmeDto filme, string changeMaker)
         {
             if (filme.Images != null)
             {
@@ -60,7 +60,7 @@ namespace AplicacaoWeb.Aplication
                         Url = image.Url,
                         ArquiveName = image.ArquiveName,
                         CreatedAt = DateTime.UtcNow,
-                        CreatedBy = "faze de teste",
+                        CreatedBy = changeMaker,
                         FilmeId = filme.Id ?? throw new Exception($"Houve um erro ao fazer a operação: Falha ao recuperar ID do filme"),
                         IsDeleted = filme.IsDeleted,
                     };
@@ -69,17 +69,17 @@ namespace AplicacaoWeb.Aplication
                 await unitOfWork.SaveAsync();
             }
         }
-        public async Task<FilmeDto> Add(FilmeWithArquiveDto filmeDtoAdd)
+        public async Task<FilmeDto> Add(FilmeWithArquiveDto filmeDtoAdd, string changeMaker)
         {
             try
             {
                 FilmeDto filmeDto;
                 filmeDto = ToDtoWithoutArquive(filmeDtoAdd);
                 unitOfWork.BeginTransaction();
-                filmeDto = await Add(filmeDto);
+                filmeDto = await Add(filmeDto, changeMaker);
                 filmeDtoAdd.Id = filmeDto.Id;
-                filmeDto = await GenerateAWSLink(filmeDtoAdd);
-                await AddImagesOnDB(filmeDto);
+                filmeDto = await GenerateAWSLink(filmeDtoAdd, changeMaker);
+                await AddImagesOnDB(filmeDto, changeMaker);
                 unitOfWork.Commit();
 
                 return filmeDto;
@@ -91,7 +91,7 @@ namespace AplicacaoWeb.Aplication
             }
         }
 
-        private async Task<FilmeDto> GenerateAWSLink(FilmeWithArquiveDto filme)
+        private async Task<FilmeDto> GenerateAWSLink(FilmeWithArquiveDto filme, string changeMaker)
         {
             List<ImageUrlAndNameDto> images = new List<ImageUrlAndNameDto>();
             foreach (IFormFile image in filme.ImageFiles)
@@ -102,7 +102,7 @@ namespace AplicacaoWeb.Aplication
                     FilmeId = filme.Id ?? throw new Exception($"Houve um erro ao fazer a operação: falha ao recuperar ID do filme"),
                     Url = await iS3Service.ImageWebpToS3Async(image),
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "Fase de teste",
+                    CreatedBy = changeMaker,
 
                 };
                 images.Add(temp);
@@ -165,9 +165,9 @@ namespace AplicacaoWeb.Aplication
             }
         }
 
-        public FilmeDto Get(int id)
+        public async Task<FilmeDto> Get(int id)
         {
-            var filme = filmeRepository.GetAllWhen(x => x.Id == id).FirstOrDefault();
+            var filme = await filmeRepository.GetFilmesByIdAsync(id);
 
             if (filme == null)
             {
@@ -184,7 +184,7 @@ namespace AplicacaoWeb.Aplication
             var source = filmeRepository.GetAllWhen(x => (!filtro.Filter.Id.HasValue || x.Id == filtro.Filter.Id) &&
                                                          (!filtro.Filter.UserResponsibleId.HasValue || x.UserResponsibleId == filtro.Filter.UserResponsibleId) &&
                                                          (!filtro.Filter.CategoryId.HasValue || x.CategoryId == filtro.Filter.CategoryId) &&
-                                                         (!filtro.Filter.Rodagem.HasValue || x.Rodagem == filtro.Filter.Rodagem) &&
+                                                         (!filtro.Filter.Rodagem.HasValue || x.Rodagem <= filtro.Filter.Rodagem) &&
                                                          (string.IsNullOrEmpty(filtro.Filter.Plate) || x.Plate == filtro.Filter.Plate) &&
                                                          (string.IsNullOrEmpty(filtro.Filter.Description) || x.Description.ToLower().Contains(filtro.Filter.Description.ToLower())) &&
                                                          (string.IsNullOrEmpty(filtro.Filter.Title) || x.Title.ToLower().Contains(filtro.Filter.Title.ToLower())) &&
@@ -213,7 +213,7 @@ namespace AplicacaoWeb.Aplication
             return filmes;
         }
 
-        public async Task<FilmeDto> Update(int id, FilmeWithArquiveDto filmedtoArquive)
+        public async Task<FilmeDto> Update(int id, FilmeWithArquiveDto filmedtoArquive, string changeMaker)
         {
 
             var mapper = new FilmeMapper();
@@ -238,8 +238,8 @@ namespace AplicacaoWeb.Aplication
 
                 if (filmedtoArquive.ImageFiles != null)
                 {
-                    filmeDto = await GenerateAWSLink(filmedtoArquive);
-                    await AddImagesOnDB(filmeDto);
+                    filmeDto = await GenerateAWSLink(filmedtoArquive, changeMaker);
+                    await AddImagesOnDB(filmeDto, changeMaker);
                 }
                 else
                 {
@@ -255,7 +255,7 @@ namespace AplicacaoWeb.Aplication
                         IsDeleted = filmedtoArquive.IsDeleted
                     };
                 }
-                filmeDto = await Update(id, filmeDto);
+                filmeDto = await Update(id, filmeDto, changeMaker);
                 unitOfWork.Commit();
                 return filmeDto;
 
@@ -267,14 +267,14 @@ namespace AplicacaoWeb.Aplication
             }
         }
 
-        public async Task<FilmeDto> Update(int id, FilmeDto filmedto)
+        public async Task<FilmeDto> Update(int id, FilmeDto filmedto, string changeMaker)
         {
 
             var mapper = new FilmeMapper();
             var existingFilme = await filmeRepository.GetFilmesByIdAsync(id);
             Filme filme = mapper.MapperFromDtoToUpdate(filmedto, existingFilme);
             filme.UpdatedDate = DateTime.UtcNow;
-            filme.UpdatedBy = "faze de teste";
+            filme.UpdatedBy = changeMaker;
             filmeRepository.Update(filme);
             await unitOfWork.SaveAsync();
             return mapper.MapperToDto(filme);

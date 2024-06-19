@@ -48,9 +48,13 @@ public class TokenService : ITokenService
             var userIdClaim = jwtToken.Claims.First(claim => claim.Type == "UserId");
             return userIdClaim.Value;
         }
-        catch
+        catch (SecurityTokenExpiredException)
         {
-            return null;
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Erro na validação do token", ex);
         }
     }
 }

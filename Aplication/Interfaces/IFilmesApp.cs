@@ -4,7 +4,7 @@ namespace AplicacaoWeb.Aplication.Interfaces
 {
     public interface IFilmesApp : IApp<FilmeDto>
     {
-        Task<FilmeDto> Add(FilmeWithArquiveDto obj);
-        Task<FilmeDto> Update(int id, FilmeWithArquiveDto obj);
+        Task<FilmeDto> Add(FilmeWithArquiveDto obj, string changeMaker);
+        Task<FilmeDto> Update(int id, FilmeWithArquiveDto obj, string changeMaker);
     }
 }

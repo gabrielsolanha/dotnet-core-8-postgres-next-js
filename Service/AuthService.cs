@@ -1,11 +1,13 @@
 ﻿using AplicacaoWeb.Data.Repositories.Interfaces;
 using AplicacaoWeb.Domain;
+using AplicacaoWeb.Mapper;
 using AplicacaoWeb.Models.Dtos;
 using AplicacaoWeb.Models.Dtos.Requests;
 using AplicacaoWeb.Models.Dtos.Responses;
 using AplicacaoWeb.Models.Entities;
 using AplicacaoWeb.Models.Enums;
 using AplicacaoWeb.Service.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AplicacaoWeb.Service
 {
@@ -102,8 +104,49 @@ namespace AplicacaoWeb.Service
 
             return string.Join(",", accessStrings);
         }
+        public async Task<object?> VerifyTokenAccess(string token, string scrren, string accessType)
+        {
+            try
+            {
+                int idUser = Int32.Parse(this.tokenService.GetUserIdFromToken(token));
+                var userViews = userScreenRepository.GetAllWhen(v => v.Users.Id == idUser);
+                if (userViews == null)
+                {
+                    return null;
+                }
+                var screen = userViews.Where(v => v.Screens.ScreenName == scrren).FirstOrDefault();
+                if (scrren == null)
+                {
+                    return null;
+                }
+                if (!screen.AccessLevel.ToString().Contains(accessType))
+                {
+                    if (screen.Screens.ScreenName == "User" && accessType == "View")
+                    {
+                        return await MapperToDtoFromIdAsync(idUser);
+                    }
+                }
+                return screen.Users.UserName;
 
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<UserDto> MapperToDtoFromIdAsync(int idUser)
+        {
 
+            var userMapper = new UserMapper();
+            User userEntity = await userRepository.GetUsersByIdAsync(idUser);
+            UserDto ret = userMapper.MapperToDto(userEntity);
+            ret.Views = GetListView(userEntity);
+            return ret;
+        }
 
     }
 }

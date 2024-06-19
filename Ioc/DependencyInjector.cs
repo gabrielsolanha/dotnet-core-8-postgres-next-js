@@ -48,6 +48,9 @@ namespace AplicacaoWeb.IoC
             //Filme
             services.TryAddScoped<IApp<FilmeDto>, FilmesApp>();
             services.TryAddScoped<IFilmesApp, FilmesApp>();
+            //User
+            services.TryAddScoped<IApp<UserDto>, UsersApp>();
+            services.TryAddScoped<IUsersApp, UsersApp>();
             //Category
             services.TryAddScoped<IApp<CategoryDto>, CategoriesApp>();
         }

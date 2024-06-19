@@ -50,8 +50,9 @@ namespace AplicacaoWeb.Dacpac
             var screens = new List<Screen>
             {
                 new Screen { ScreenName = "Filme", ScreenType = "public", ScreenUrl = "/filme" },
-                new Screen { ScreenName = "Screens", ScreenType = "private", ScreenUrl = "/screens" },
-                new Screen { ScreenName = "Users", ScreenType = "private", ScreenUrl = "/users" }
+                new Screen { ScreenName = "Screen", ScreenType = "private", ScreenUrl = "/screen" },
+                new Screen { ScreenName = "Category", ScreenType = "private", ScreenUrl = "/category" },
+                new Screen { ScreenName = "User", ScreenType = "private", ScreenUrl = "/user" }
             };
 
 

@@ -18,7 +18,6 @@ namespace AplicacaoWeb.Data.Maps
 
             builder.HasIndex(x => x.ScreenUrl).IsUnique();
             builder.HasIndex(x => x.ScreenName).IsUnique();
-            builder.Property(x => x.IsDeleted).HasColumnName("Ativo");
         }
     }
 }

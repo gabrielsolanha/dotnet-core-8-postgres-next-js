@@ -7,3 +7,4 @@ https://github.com/gabrielsolanha/dotnet-core-8-postgres-next-js-front-end
 -> TU's
 -> Processo de build
 -> Verionamento (caso  necessário)
+-> Inativos sem acesso

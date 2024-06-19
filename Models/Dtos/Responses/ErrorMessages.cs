@@ -1,17 +1,13 @@
-﻿using System.Collections.Generic;
-
-namespace AplicacaoWeb.Models.Dtos.Responses
+﻿namespace AplicacaoWeb.Models.Dtos.Responses
 {
     public class ErrorMessages
     {
-        public ErrorMessages()
-        {
-            Messages = new List<string>();
-        }
         public ErrorMessages(string message)
         {
-            Messages = new List<string>();
-            Messages.Add(message);
+            Messages = new List<string>
+            {
+                message
+            };
         }
         public List<string> Messages { get; set; }
         public List<string> Add(string message)
