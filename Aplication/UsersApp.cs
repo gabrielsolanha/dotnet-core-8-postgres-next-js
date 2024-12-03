@@ -70,7 +70,7 @@ namespace AplicacaoWeb.Aplication
                 await unitOfWork.SaveAsync();
                 unitOfWork.Commit();
 
-                return await authService.MapperToDtoFromIdAsync(user.Id);
+                return authService.MapperToDtoFromIdAsync(user.Id);
             }
             catch (Exception e)
             {
@@ -130,16 +130,16 @@ namespace AplicacaoWeb.Aplication
             }
         }
 
-        public async Task<UserDto> Get(int id)
+        public UserDto Get(int id)
         {
-            var user = await userRepository.GetUsersByIdAsync(id);
+            var user = userRepository.GetUsersByIdAsync(id);
 
             if (user == null)
             {
                 throw new Exception("Nenhum user encontrado.");
             }
 
-            return await authService.MapperToDtoFromIdAsync(user.Id);
+            return authService.MapperToDtoFromIdAsync(user.Id);
         }
 
         public IEnumerable<UserDto> List(PaginationDto<UserDto> filtro)//username telefone callmename email 
@@ -178,7 +178,7 @@ namespace AplicacaoWeb.Aplication
 
             unitOfWork.BeginTransaction();
             var mapper = new UserMapper();
-            var existingUser = await userRepository.GetUsersByIdAsync(id);
+            var existingUser = userRepository.GetUsersByIdAsync(id);
             User user = mapper.MapperFromDtoToUpdate(userdto, existingUser);
             if (string.IsNullOrEmpty(userdto.Pass))
             {
@@ -225,7 +225,7 @@ namespace AplicacaoWeb.Aplication
 
         public async Task<UserDto> GetUserPublicInfo(int id)
         {
-            var user = await userRepository.GetUsersByIdAsync(id);
+            var user = userRepository.GetUsersByIdAsync(id);
 
             if (user == null)
             {

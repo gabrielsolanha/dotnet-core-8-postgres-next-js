@@ -19,10 +19,9 @@ namespace AplicacaoWeb.Data.Repository
                 .ToListAsync();
         }
 
-        public async Task<User> GetUsersByIdAsync(int id)
+        public User GetUsersByIdAsync(int id)
         {
-            return await _context.Users
-                        .Where(x => x.Id == id).FirstOrDefaultAsync();
+            return GetAllWhen(x => x.Id == id).FirstOrDefault();
         }
 
         public bool UserExists(int id)

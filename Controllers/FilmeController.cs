@@ -46,7 +46,7 @@ public class FilmeController : ControllerBase
     {
         try
         {
-            return Ok(await filmesService.Get(id));
+            return Ok(filmesService.Get(id));
         }
         catch (Exception ex)
         {

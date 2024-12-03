@@ -88,7 +88,7 @@ public class UserController : ControllerBase
                     new ErrorMessages("Usuário não tem este acesso.")
                 );
             }
-            return Ok(await usersService.Get(id));
+            return Ok(usersService.Get(id));
         }
         catch (Exception ex)
         {

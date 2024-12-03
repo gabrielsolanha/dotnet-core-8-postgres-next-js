@@ -32,7 +32,8 @@ namespace AplicacaoWeb.Service
             {
                 if (image == null || image.Length == 0) throw new Exception("Nenhuma imagem enviada.");
 
-                using (MemoryStream memoryStream = await ConvertIFormFileToStreamAsync(image))
+                IImageHandlerService imageHandlerService = new ImageHandlerService();
+                using (MemoryStream memoryStream = await imageHandlerService.ConvertIFormFileToStreamAsync(image))
                 {
                     string chaveNoS3 = Guid.NewGuid().ToString() + ".webp";
 
@@ -57,26 +58,6 @@ namespace AplicacaoWeb.Service
             catch (Exception ex)
             {
                 throw new Exception($"Erro no upload: {ex.Message}");
-            }
-        }
-
-        private async Task<MemoryStream> ConvertIFormFileToStreamAsync(IFormFile image)
-        {
-            byte[] imageData = await ConvertIFormFileToByteArrayAsync(image);
-            using MemoryStream inStream = new MemoryStream(imageData);
-            using Image myImage = await Image.LoadAsync(inStream);
-            MemoryStream outStream = new MemoryStream();
-            await myImage.SaveAsync(outStream, new WebpEncoder());
-            outStream.Seek(0, SeekOrigin.Begin);
-            return outStream;
-        }
-
-        private async Task<byte[]> ConvertIFormFileToByteArrayAsync(IFormFile file)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                await file.CopyToAsync(memoryStream);
-                return memoryStream.ToArray();
             }
         }
 

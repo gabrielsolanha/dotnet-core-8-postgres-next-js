@@ -63,7 +63,7 @@ public class CategoryController : ControllerBase
                     new ErrorMessages("Usuário não tem este acesso.")
                 );
             }
-            return Ok(await categoriesService.Get(id));
+            return Ok(categoriesService.Get(id));
         }
         catch (Exception ex)
         {

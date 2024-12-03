@@ -123,7 +123,7 @@ namespace AplicacaoWeb.Service
                 {
                     if (screen.Screens.ScreenName == "User" && accessType == "View")
                     {
-                        return await MapperToDtoFromIdAsync(idUser);
+                        return MapperToDtoFromIdAsync(idUser);
                     }
                 }
                 return screen.Users.UserName;
@@ -138,11 +138,11 @@ namespace AplicacaoWeb.Service
                 throw;
             }
         }
-        public async Task<UserDto> MapperToDtoFromIdAsync(int idUser)
+        public UserDto MapperToDtoFromIdAsync(int idUser)
         {
 
             var userMapper = new UserMapper();
-            User userEntity = await userRepository.GetUsersByIdAsync(idUser);
+            User userEntity = userRepository.GetUsersByIdAsync(idUser);
             UserDto ret = userMapper.MapperToDto(userEntity);
             ret.Views = GetListView(userEntity);
             return ret;

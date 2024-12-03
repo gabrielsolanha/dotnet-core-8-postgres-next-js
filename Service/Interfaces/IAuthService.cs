@@ -13,6 +13,6 @@ namespace AplicacaoWeb.Service.Interfaces
         LoginResponse? GetLoginResponse(User user, LoginRequest loginRequest);
         List<ViewResponse> GetListView(User user);
         Task<object?> VerifyTokenAccess(string token, string scrren, string accessType);
-        Task<UserDto> MapperToDtoFromIdAsync(int idUser);
+        UserDto MapperToDtoFromIdAsync(int idUser);
     }
 }

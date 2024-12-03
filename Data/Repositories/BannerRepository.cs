@@ -5,35 +5,35 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AplicacaoWeb.Data.Repository
 {
-    public class FilmeRepository : RepositoryBase<Filme>, IFilmeRepository
+    public class BannerRepository : RepositoryBase<Banner>, IBannerRepository
     {
         private readonly AppDbContext _context;
 
-        public FilmeRepository(AppDbContext context) : base(context)
+        public BannerRepository(AppDbContext context) : base(context)
         {
             _context = context;
         }
-        public async Task<IEnumerable<Filme>> GetFilmesAllAsync()
+        public async Task<IEnumerable<Banner>> GetBannersAllAsync()
         {
-            return await _context.Filmes
+            return await _context.Banners
                 .ToListAsync();
         }
 
-        public Filme? GetFilmesById(int id)
+        public Banner? GetBannersById(int id)
         {
             return GetAllWhen(x => x.Id == id).FirstOrDefault();
         }
 
-        public bool FilmeExists(int id)
+        public bool BannerExists(int id)
         {
-            return _context.Filmes.Any(e => e.Id == id);
+            return _context.Banners.Any(e => e.Id == id);
         }
-        public new void Update(Filme entity)
+        public new void Update(Banner entity)
         {
-            var existingEntity = _context.Filmes.Find(entity.Id);
+            var existingEntity = _context.Banners.Find(entity.Id);
             if (existingEntity == null)
             {
-                _context.Filmes.Attach(entity);
+                _context.Banners.Attach(entity);
                 _context.Entry(entity).State = EntityState.Modified;
             }
             else

@@ -12,6 +12,7 @@ namespace AplicacaoWeb.Data.Context
         }
 
         public DbSet<Filme> Filmes { get; set; }
+        public DbSet<Banner> Banners { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Screen> Screens { get; set; }
         public DbSet<UserScreen> UserScreens { get; set; }

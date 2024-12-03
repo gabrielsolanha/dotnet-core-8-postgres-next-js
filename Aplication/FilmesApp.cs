@@ -165,9 +165,9 @@ namespace AplicacaoWeb.Aplication
             }
         }
 
-        public async Task<FilmeDto> Get(int id)
+        public FilmeDto Get(int id)
         {
-            var filme = await filmeRepository.GetFilmesByIdAsync(id);
+            var filme = filmeRepository.GetFilmesById(id);
 
             if (filme == null)
             {
@@ -217,7 +217,7 @@ namespace AplicacaoWeb.Aplication
         {
 
             var mapper = new FilmeMapper();
-            var existingFilme = await filmeRepository.GetFilmesByIdAsync(id);
+            var existingFilme = filmeRepository.GetFilmesById(id);
             if (existingFilme == null)
             {
                 throw new Exception("Nenhum filme encontrado.");
@@ -271,7 +271,7 @@ namespace AplicacaoWeb.Aplication
         {
 
             var mapper = new FilmeMapper();
-            var existingFilme = await filmeRepository.GetFilmesByIdAsync(id);
+            var existingFilme = filmeRepository.GetFilmesById(id);
             Filme filme = mapper.MapperFromDtoToUpdate(filmedto, existingFilme);
             filme.UpdatedDate = DateTime.UtcNow;
             filme.UpdatedBy = changeMaker;

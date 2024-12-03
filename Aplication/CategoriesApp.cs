@@ -63,7 +63,7 @@ namespace AplicacaoWeb.Aplication
             }
         }
 
-        public async Task<CategoryDto> Get(int id)
+        public CategoryDto Get(int id)
         {
             var category = categoryRepository.GetAllWhen(x => x.Id == id).FirstOrDefault();
 
